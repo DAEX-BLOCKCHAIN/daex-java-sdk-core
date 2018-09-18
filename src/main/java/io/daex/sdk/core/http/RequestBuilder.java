@@ -117,6 +117,11 @@ public class RequestBuilder {
     private final List<NameValue> headers = new ArrayList<NameValue>();
     private final HTTPMethod method;
     private final List<NameValue> queryParams = new ArrayList<NameValue>();
+    private String jsonBody;
+
+    public String getJsonBody() {
+        return jsonBody;
+    }
 
     /**
      * Instantiates a new request.
@@ -290,7 +295,8 @@ public class RequestBuilder {
      * @return this
      */
     public RequestBuilder bodyJson(JsonObject json) {
-        return bodyContent(json.toString(), HttpMediaType.APPLICATION_JSON);
+        this.jsonBody = json.toString();
+        return bodyContent(this.jsonBody, HttpMediaType.APPLICATION_JSON);
     }
 
     /**

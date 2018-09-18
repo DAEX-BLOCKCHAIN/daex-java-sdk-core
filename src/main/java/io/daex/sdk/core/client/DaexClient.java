@@ -1,13 +1,11 @@
 package io.daex.sdk.core.client;
 
 import com.google.gson.JsonObject;
+import io.daex.sdk.core.enums.ApiType;
 import io.daex.sdk.core.http.*;
 import io.daex.sdk.core.service.exception.*;
-import io.daex.sdk.core.service.security.HmacOptions;
-import io.daex.sdk.core.service.security.HmacSigner;
-import io.daex.sdk.core.service.security.IamOptions;
-import io.daex.sdk.core.service.security.IamTokenManager;
-import io.daex.sdk.core.util.HmacUtils;
+import io.daex.sdk.core.service.security.*;
+import io.daex.sdk.core.util.RSAUtils;
 import io.daex.sdk.core.util.RequestUtils;
 import io.daex.sdk.core.util.ResponseUtils;
 import jersey.repackaged.jsr166e.CompletableFuture;
@@ -39,10 +37,8 @@ public class DaexClient {
     private String endPoint;
     private OkHttpClient client;
 
-    private boolean oauthTokenEnabled;
-    private IamTokenManager tokenManager;
 
-    private boolean hmacEnabled;
+    private boolean rsaEnabled;
     /**
      * The default headers.
      */
@@ -56,16 +52,9 @@ public class DaexClient {
      */
     public DaexClient(final String endPoint) {
         this.endPoint = endPoint;
-        oauthTokenEnabled = DaexClientConfig.getInstance().isOauthTokenEnabled();
-        hmacEnabled = DaexClientConfig.getInstance().isHmacEnabled();
-        if(oauthTokenEnabled){
-            IamOptions iamOptions = new IamOptions.Builder()
-                    .clientId(DaexClientConfig.getInstance().getOauthClientId())
-                    .clientSecret(DaexClientConfig.getInstance().getOauthClientSecret())
-                    .url(DaexClientConfig.getInstance().getOauthEndpoint())
-                    .build();
-            tokenManager = new IamTokenManager(iamOptions);
-        }
+
+        rsaEnabled = DaexClientConfig.getInstance().isRSAEnabled();
+
         client = configureHttpClient();
     }
 
@@ -87,16 +76,16 @@ public class DaexClient {
      * @return the HTTP response
      */
     private Call createCall(final Request request) {
+        return createCall(request, null);
+    }
+
+    private Call createCall(final Request request, final String jsonBody) {
         final Builder builder = request.newBuilder();
 
         setDefaultHeaders(builder);
 
-        if(oauthTokenEnabled) {
-            setAuthentication(builder);
-        }
-
-        if(hmacEnabled){
-            setHmacHeaders(request,builder);
+        if(rsaEnabled) {
+            setRSAHeaders(request, builder, jsonBody);
         }
         final Request newRequest = builder.build();
         return client.newCall(newRequest);
@@ -121,42 +110,28 @@ public class DaexClient {
         builder.header(HttpHeaders.USER_AGENT, userAgent);
     }
 
-    /**
-     * Sets the authentication. Okhttp3 compliant.
-     *
-     * @param builder the new authentication
-     */
-    protected void setAuthentication(final Builder builder) {
-            String accessToken = tokenManager.getToken();
-            builder.addHeader(HttpHeaders.AUTHORIZATION, BEARER + accessToken);
-    }
+    protected void setRSAHeaders(final Request request, final Builder builder ,final String jsonBody) {
 
-    /**
-     * Sets the HMAC headers. Okhttp3 compliant.
-     *
-     * @param builder the new authentication
-     */
-    protected void setHmacHeaders(final Request request, final Builder builder) {
-
-        HmacOptions.Builder hmacOptionsBuilder = new HmacOptions.Builder();
+        RSAOptions.Builder rsaOptionsBuilder = new RSAOptions.Builder();
 
         String method = request.method();
         URL url = request.url().url();
         String path = url.getPath();
         String query = url.getQuery();
-        hmacOptionsBuilder.method(method);
-        hmacOptionsBuilder.path(path);
-        hmacOptionsBuilder.macId(DaexClientConfig.getInstance().getHmacId());
-        hmacOptionsBuilder.macSecret(DaexClientConfig.getInstance().getHmacSecret());
-        hmacOptionsBuilder.nonce(UUID.randomUUID().toString());
-        hmacOptionsBuilder.timeStamp(String.valueOf(Instant.now().getEpochSecond()));
+        rsaOptionsBuilder.method(method);
+        rsaOptionsBuilder.path(path);
+        ApiType apiType = ApiType.apiTypeMap.get(path);
+        rsaOptionsBuilder.rsaId(apiType.getApiId());
+        rsaOptionsBuilder.privateKey(apiType.getApiPrivateKey());
+        rsaOptionsBuilder.nonce(UUID.randomUUID().toString());
+        rsaOptionsBuilder.timeStamp(String.valueOf(Instant.now().getEpochSecond()));
         if(query!=null){
-            query = HmacUtils.sortQuery(url);
-            hmacOptionsBuilder.query(query);
+            query = RSAUtils.sortQuery(url);
+            rsaOptionsBuilder.query(query);
         }
 
         RequestBody requestBody = request.body();
-        if(requestBody!=null){
+        if("POST".equals(method) && requestBody!=null){
             if(requestBody instanceof FormBody){
                 SortedMap<String,String> paraMap = new TreeMap<>();
                 FormBody formBody = (FormBody)requestBody;
@@ -166,18 +141,20 @@ public class DaexClient {
                     String value = formBody.encodedValue(i);
                     paraMap.put(name,value);
                 }
-                String formParams = HmacUtils.flat(paraMap);
-                hmacOptionsBuilder.formParams(formParams);
+                String formParams = RSAUtils.flat(paraMap);
+                rsaOptionsBuilder.formParams(formParams);
+            } else {
+                rsaOptionsBuilder.formParams(jsonBody);
             }
         }
 
-        HmacOptions hmacOptions = hmacOptionsBuilder.build();
+        RSAOptions rsaOptions = rsaOptionsBuilder.build();
 
-        String signature = HmacSigner.getSignature(hmacOptions);
+        String signature = RSASigner.getSignature(rsaOptions);
 
-        builder.addHeader(HttpHeaders.X_AUTHORIZATION_NONCE, hmacOptions.getNonce());
-        builder.addHeader(HttpHeaders.X_AUTHORIZATION_TIME, hmacOptions.getTimeStamp());
-        builder.addHeader(HttpHeaders.X_AUTHORIZATION_HMAC, signature);
+        builder.addHeader(HttpHeaders.X_AUTHORIZATION_NONCE, rsaOptions.getNonce());
+        builder.addHeader(HttpHeaders.X_AUTHORIZATION_TIME, rsaOptions.getTimeStamp());
+        builder.addHeader(HttpHeaders.X_AUTHORIZATION_RSA, signature);
     }
 
     /**
@@ -188,6 +165,11 @@ public class DaexClient {
      * @param converter the converter
      * @return the service call
      */
+    protected final <T> ServiceCall<T> createServiceCall(final Request request, final ResponseConverter<T> converter, final String jsonBody) {
+        final Call call = createCall(request, jsonBody);
+        return new DAEXServiceCall<>(call, converter);
+    }
+
     protected final <T> ServiceCall<T> createServiceCall(final Request request, final ResponseConverter<T> converter) {
         final Call call = createCall(request);
         return new DAEXServiceCall<>(call, converter);

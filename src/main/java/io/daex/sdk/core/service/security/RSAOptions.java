@@ -1,22 +1,21 @@
 package io.daex.sdk.core.service.security;
 
-import java.util.Map;
-
-public class HmacOptions {
-
-    private String macId;
-    private String macSecret;
+/**
+ * Created by qingyun.yu on 2018/8/20.
+ */
+public class RSAOptions {
+    private String rsaId;
+    private String privateKey;
     private String timeStamp;
     private String nonce;
     private String method;
     private String path;
     private String query;
     private String formParams;
-
     public static class Builder {
 
-        private String macId;
-        private String macSecret;
+        private String rsaId;
+        private String privateKey;
         private String timeStamp;
         private String nonce;
         private String method;
@@ -24,49 +23,49 @@ public class HmacOptions {
         private String query;
         private String formParams;
 
-        public HmacOptions build() {
-            return new HmacOptions(this);
+        public RSAOptions build() {
+            return new RSAOptions(this);
         }
 
-        public HmacOptions.Builder macId(String macId) {
-            this.macId = macId;
+        public RSAOptions.Builder rsaId(String rsaId) {
+            this.rsaId = rsaId;
             return this;
         }
 
-        public HmacOptions.Builder macSecret(String macSecret) {
-            this.macSecret = macSecret;
+        public RSAOptions.Builder privateKey(String privateKey) {
+            this.privateKey = privateKey;
             return this;
         }
 
-        public HmacOptions.Builder timeStamp(String timeStamp) {
+        public RSAOptions.Builder timeStamp(String timeStamp) {
             this.timeStamp = timeStamp;
             return this;
         }
-        public HmacOptions.Builder nonce(String nonce) {
+        public RSAOptions.Builder nonce(String nonce) {
             this.nonce = nonce;
             return this;
         }
-        public HmacOptions.Builder method(String method) {
+        public RSAOptions.Builder method(String method) {
             this.method = method;
             return this;
         }
-        public HmacOptions.Builder path(String path) {
+        public RSAOptions.Builder path(String path) {
             this.path = path;
             return this;
         }
-        public HmacOptions.Builder query(String query) {
+        public RSAOptions.Builder query(String query) {
             this.query = query;
             return this;
         }
-        public HmacOptions.Builder formParams(String formParams) {
+        public RSAOptions.Builder formParams(String formParams) {
             this.formParams = formParams;
             return this;
         }
     }
 
-    private HmacOptions(HmacOptions.Builder builder) {
-        this.macId = builder.macId;
-        this.macSecret = builder.macSecret;
+    private RSAOptions(RSAOptions.Builder builder) {
+        this.rsaId = builder.rsaId;
+        this.privateKey = builder.privateKey;
         this.timeStamp = builder.timeStamp;
         this.nonce = builder.nonce;
         this.method = builder.method;
@@ -75,12 +74,13 @@ public class HmacOptions {
         this.formParams = builder.formParams;
     }
 
-    public String getMacId() {
-        return macId;
+
+    public String getRsaId() {
+        return rsaId;
     }
 
-    public String getMacSecret() {
-        return macSecret;
+    public String getPrivateKey() {
+        return privateKey;
     }
 
     public String getTimeStamp() {

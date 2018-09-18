@@ -148,18 +148,13 @@ public interface HttpHeaders {
    */
   String VARY = "Vary";
 
-  /**
-   * See <a href="http://www.w3.org/Protocols/rfc2616/rfc2616-sec14.html#sec14.47">HTTP/1.1 documentation</a>.
-   */
-  String WWW_AUTHENTICATE = "WWW-Authenticate";
-
-  /** The HMAC Authorization header. */
-  String X_AUTHORIZATION_HMAC = "X-Authorization-Hmac";
 
   /** The HMAC TIME Authorization header. */
   String X_AUTHORIZATION_TIME = "X-Authorization-Timestamp";
 
   /** The HMAC NONCE Authorization header. */
   String X_AUTHORIZATION_NONCE = "X-Authorization-Nonce";
+
+  String X_AUTHORIZATION_RSA = "X-Authorization-Sign";
 
 }

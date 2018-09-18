@@ -27,26 +27,24 @@ public class DaexClientConfig {
      */
     private static final Properties DEFAULT_PROPERTIES;
 
-    private static final String OAUTH_TOKEN_ENABLED = "oauth.token.enabled";
-    private static final String OAUTH_ENDPOINT = "oauth.endpoint";
-    private static final String OAUTH_CLIENT_ID = "oauth.client.id";
-    private static final String OAUTH_CLIENT_SECRET = "oauth.client.secret";
-
-    private static final String HMAC_ENABLED = "hmac.enabled";
-    private static final String HMAC_ID = "hmac.id";
-    private static final String HMAC_SECRET = "hmac.secret";
+    private static final String RSA_ENABLED = "rsa.enabled";
+    private static final String TAPI_RSA_ID = "tApi.rsa.id";
+    private static final String TAPI_RSA_PRIVATEKEY = "tApi.rsa.privateKey";
+    private static final String MAPI_RSA_ID = "mApi.rsa.id";
+    private static final String MAPI_RSA_PRIVATEKEY = "mApi.rsa.privateKey";
+    private static final String TCAPI_RSA_ID = "tcApi.rsa.id";
+    private static final String TCAPI_RSA_PRIVATEKEY = "tcApi.rsa.privateKey";
 
     // Initialize DEFAULT_PROPERTIES
     static {
         DEFAULT_PROPERTIES = new Properties();
-        DEFAULT_PROPERTIES.put(OAUTH_TOKEN_ENABLED, "false");
-        DEFAULT_PROPERTIES.put(OAUTH_ENDPOINT, "https://oauth.daex.io/v1");
-        DEFAULT_PROPERTIES.put(OAUTH_CLIENT_ID, "");
-        DEFAULT_PROPERTIES.put(OAUTH_CLIENT_SECRET, "");
-        DEFAULT_PROPERTIES.put(HMAC_ENABLED, "false");
-        DEFAULT_PROPERTIES.put(HMAC_ID, "");
-        DEFAULT_PROPERTIES.put(HMAC_SECRET, "");
-
+        DEFAULT_PROPERTIES.put(RSA_ENABLED, "false");
+        DEFAULT_PROPERTIES.put(TAPI_RSA_ID, "");
+        DEFAULT_PROPERTIES.put(TAPI_RSA_PRIVATEKEY, "");
+        DEFAULT_PROPERTIES.put(MAPI_RSA_ID, "");
+        DEFAULT_PROPERTIES.put(MAPI_RSA_PRIVATEKEY, "");
+        DEFAULT_PROPERTIES.put(TCAPI_RSA_ID, "");
+        DEFAULT_PROPERTIES.put(TCAPI_RSA_PRIVATEKEY, "");
     }
 
     /**
@@ -106,35 +104,33 @@ public class DaexClientConfig {
         return combinedProperties;
     }
 
-
-    public boolean isOauthTokenEnabled() {
-        return Boolean.parseBoolean(getValue(OAUTH_TOKEN_ENABLED));
+    public boolean isRSAEnabled() {
+        return Boolean.parseBoolean(getValue(RSA_ENABLED));
     }
 
-    public String getOauthClientId() {
-        return getValue(OAUTH_CLIENT_ID);
+    public String getTApiRSAId() {
+        return getValue(TAPI_RSA_ID);
     }
 
-    public String getOauthClientSecret() {
-        return getValue(OAUTH_CLIENT_SECRET);
+    public String getTApiRSAPrivateKey() {
+        return getValue(TAPI_RSA_PRIVATEKEY);
     }
 
-    public String getOauthEndpoint() {
-        return getValue(OAUTH_ENDPOINT);
+    public String getMApiRSAId() {
+        return getValue(MAPI_RSA_ID);
     }
 
-    public boolean isHmacEnabled() {
-        return Boolean.parseBoolean(getValue(HMAC_ENABLED));
+    public String getMApiRSAPrivateKey() {
+        return getValue(MAPI_RSA_PRIVATEKEY);
     }
 
-    public String getHmacId() {
-        return getValue(HMAC_ID);
+    public String getTcApiRSAId() {
+        return getValue(TCAPI_RSA_ID);
     }
 
-    public String getHmacSecret() {
-        return getValue(HMAC_SECRET);
+    public String getTcApiRSAPrivateKey() {
+        return getValue(TCAPI_RSA_PRIVATEKEY);
     }
-
     /**
      * Returns a value for the corresponding key
      *
