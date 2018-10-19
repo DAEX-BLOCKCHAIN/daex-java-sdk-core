@@ -27,43 +27,43 @@ public class RSAOptions {
             return new RSAOptions(this);
         }
 
-        public RSAOptions.Builder rsaId(String rsaId) {
+        public Builder rsaId(String rsaId) {
             this.rsaId = rsaId;
             return this;
         }
 
-        public RSAOptions.Builder privateKey(String privateKey) {
+        public Builder privateKey(String privateKey) {
             this.privateKey = privateKey;
             return this;
         }
 
-        public RSAOptions.Builder timeStamp(String timeStamp) {
+        public Builder timeStamp(String timeStamp) {
             this.timeStamp = timeStamp;
             return this;
         }
-        public RSAOptions.Builder nonce(String nonce) {
+        public Builder nonce(String nonce) {
             this.nonce = nonce;
             return this;
         }
-        public RSAOptions.Builder method(String method) {
+        public Builder method(String method) {
             this.method = method;
             return this;
         }
-        public RSAOptions.Builder path(String path) {
+        public Builder path(String path) {
             this.path = path;
             return this;
         }
-        public RSAOptions.Builder query(String query) {
+        public Builder query(String query) {
             this.query = query;
             return this;
         }
-        public RSAOptions.Builder formParams(String formParams) {
+        public Builder formParams(String formParams) {
             this.formParams = formParams;
             return this;
         }
     }
 
-    private RSAOptions(RSAOptions.Builder builder) {
+    private RSAOptions(Builder builder) {
         this.rsaId = builder.rsaId;
         this.privateKey = builder.privateKey;
         this.timeStamp = builder.timeStamp;

@@ -296,7 +296,7 @@ public class RequestBuilder {
      */
     public RequestBuilder bodyJson(JsonObject json) {
         this.jsonBody = json.toString();
-        return bodyContent(this.jsonBody, HttpMediaType.APPLICATION_JSON);
+        return bodyContent(this.jsonBody, HttpMediaType.JSON.toString());
     }
 
     /**
